@@ -4,12 +4,15 @@ import '../services/chat_service.dart';
 
 final chatServiceProvider = Provider<ChatService>((ref) => ChatService());
 
-// ── Messages stream for a specific alert/chat ─────────────────────────────
+// FIX #4a: Usar ref.watch en lugar de ref.read dentro del StreamProvider.family
+// para que el stream se re-suscriba correctamente cuando cambia el alertId.
 final messagesProvider = StreamProvider.family<List<MessageModel>, String>(
-  (ref, alertId) => ref.read(chatServiceProvider).messagesStream(alertId),
+  (ref, alertId) => ref.watch(chatServiceProvider).messagesStream(alertId),
 );
 
-// ── Send message action ────────────────────────────────────────────────────
+// FIX #4b: Convertir ChatNotifier en .family para que cada chat (alertId)
+// tenga su propio estado independiente. Antes todos compartían el mismo notifier
+// lo que causaba que el estado de loading/error de un chat afectara a otro.
 class ChatNotifier extends StateNotifier<AsyncValue<void>> {
   final ChatService _service;
 
@@ -35,11 +38,13 @@ class ChatNotifier extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+      rethrow; // FIX #4c: rethrow para que la UI pueda mostrar el error
     }
   }
 }
 
+// FIX #4b: .family por alertId
 final chatNotifierProvider =
-    StateNotifierProvider<ChatNotifier, AsyncValue<void>>(
-  (ref) => ChatNotifier(ref.read(chatServiceProvider)),
+    StateNotifierProvider.family<ChatNotifier, AsyncValue<void>, String>(
+  (ref, alertId) => ChatNotifier(ref.read(chatServiceProvider)),
 );
