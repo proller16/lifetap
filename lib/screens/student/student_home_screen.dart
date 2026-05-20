@@ -61,19 +61,19 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
         onConfirm: () {
           _fallTimer?.cancel();
           Navigator.of(ctx).pop();
+          // FIX #2: Fall detection sí puede preguntar (es automático),
+          // pero el botón pánico manual NO pide confirmación.
           _sendPanic(type: AlertType.slip);
         },
       ),
     );
   }
 
+  // FIX #2: Se eliminó _showConfirmDialog() y la llamada a await confirmado.
+  // El botón pánico ahora envía la alerta directamente sin diálogo intermedio.
   Future<void> _sendPanic({AlertType type = AlertType.other}) async {
     final user = ref.read(currentUserProvider).valueOrNull;
     if (user == null) return;
-
-    // Show confirmation
-    final confirmed = await _showConfirmDialog();
-    if (!confirmed) return;
 
     try {
       final alert = await ref
@@ -97,44 +97,6 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
         ),
       );
     }
-  }
-
-  Future<bool> _showConfirmDialog() async {
-    final l = AppLocalizations.of(context);
-    return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
-            title: Row(
-              children: [
-                const Icon(Icons.warning_rounded,
-                    color: AppTheme.emergencyRed, size: 28),
-                const SizedBox(width: 10),
-                Text(l.panicConfirmTitle,
-                    style: const TextStyle(fontSize: 17)),
-              ],
-            ),
-            content: Text(l.panicConfirmBody),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(l.panicCancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.emergencyRed,
-                  minimumSize: const Size(0, 44),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Text(l.panicConfirm),
-              ),
-            ],
-          ),
-        ) ??
-        false;
   }
 
   @override
