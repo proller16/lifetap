@@ -43,6 +43,8 @@ class _EmergencyChatScreenState extends ConsumerState<EmergencyChatScreen> {
     });
   }
 
+  // FIX #4: Usa chatNotifierProvider(widget.alertId) en lugar de chatNotifierProvider
+  // para tener un notifier independiente por alertId.
   Future<void> _send() async {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
@@ -51,14 +53,26 @@ class _EmergencyChatScreenState extends ConsumerState<EmergencyChatScreen> {
     final user = ref.read(currentUserProvider).valueOrNull;
     if (user == null) return;
 
-    await ref.read(chatNotifierProvider.notifier).send(
-          alertId: widget.alertId,
-          senderId: user.uid,
-          senderName: user.name,
-          senderPhotoURL: user.photoURL,
-          text: text,
-        );
-    _scrollToBottom();
+    try {
+      await ref.read(chatNotifierProvider(widget.alertId).notifier).send(
+            alertId: widget.alertId,
+            senderId: user.uid,
+            senderName: user.name,
+            senderPhotoURL: user.photoURL,
+            text: text,
+          );
+      _scrollToBottom();
+    } catch (e) {
+      if (!mounted) return;
+      // Restaurar el texto si falló el envío
+      _msgCtrl.text = text;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo enviar el mensaje. Intenta de nuevo.'),
+          backgroundColor: AppTheme.emergencyRed,
+        ),
+      );
+    }
   }
 
   @override
