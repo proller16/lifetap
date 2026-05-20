@@ -16,6 +16,8 @@ import '../screens/admin/user_management_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
+  // FIX #1: También observamos el UserModel para conocer el rol
+  final userAsync = ref.watch(currentUserProvider);
 
   return GoRouter(
     initialLocation: '/',
@@ -23,8 +25,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggedIn = authState.valueOrNull != null;
       final isOnLogin = state.matchedLocation == '/';
 
+      // Si no hay sesión y no está en login → ir al login
       if (!isLoggedIn && !isOnLogin) return '/';
-      if (isLoggedIn && isOnLogin) return null; // handled by login screen
+
+      // FIX #1: Si hay sesión activa y está en login → redirigir por rol automáticamente
+      // Esto evita que el usuario tenga que hacer login dos veces al abrir la app
+      if (isLoggedIn && isOnLogin) {
+        final user = userAsync.valueOrNull;
+        if (user == null) return null; // todavía cargando perfil, esperar
+        switch (user.role) {
+          case UserRole.student:
+            return '/student';
+          case UserRole.brigadista:
+            return '/brigadista';
+          case UserRole.admin:
+            return '/admin';
+        }
+      }
+
       return null;
     },
     routes: [
