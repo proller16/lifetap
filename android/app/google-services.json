@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1046937853148",
+    "project_id": "lifetap-eb5ea",
+    "storage_bucket": "lifetap-eb5ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046937853148:android:0b7fce93c896bf37772819",
+        "android_client_info": {
+          "package_name": "com.lifet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1gT7IS6h6uT3a1UYVkw3MXvUigoNHeCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046937853148:android:f71867608e1d3ba2772819",
+        "android_client_info": {
+          "package_name": "com.lifetap.lifetap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1gT7IS6h6uT3a1UYVkw3MXvUigoNHeCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
